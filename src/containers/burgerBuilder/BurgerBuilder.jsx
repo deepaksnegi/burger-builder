@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import AxiosOrders from "../../AxiosOrders";
 import BuildControls from "../../component/burger/buildControls/BuildControls";
 import Burger from "../../component/burger/Burger";
 import OrderSummary from "../../component/burger/orderSummary/OrderSummary";
 import Modal from "../../component/ui/modal/Modal";
+import Spinner from "../../component/ui/spinner/Spinner";
+import withErrorHandler from "../../hoc/withErrorHandler/withErrorHandler";
 
 const BurgerBuilder = () => {
   const INGREDIENT_PRICES = {
@@ -11,18 +14,24 @@ const BurgerBuilder = () => {
     meat: 1.4,
     bacon: 0.7,
   };
-  const [ingredient, setIngredient] = useState({
-    meat: 0,
-    bacon: 0,
-    cheese: 0,
-    salad: 0,
-  });
+
+  const [ingredient, setIngredient] = useState({});
 
   const [purchasable, setPurchasable] = useState(false);
 
   const [purchasing, setPurchasing] = useState(false);
 
   const [totalPrice, setTotalPrice] = useState(0);
+
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    AxiosOrders.get(
+      "https://burger-builder-9838e-default-rtdb.firebaseio.com/ingredients.json"
+    ).then((response) => {
+      setIngredient(response.data);
+    });
+  }, []);
 
   const addIngredientHandler = (type) => {
     const oldCount = ingredient[type];
@@ -32,7 +41,6 @@ const BurgerBuilder = () => {
 
     const newTotalPrice = totalPrice + INGREDIENT_PRICES[type];
     setIngredient(updatedIngredient);
-    console.log(ingredient);
     setTotalPrice(newTotalPrice);
     purchaseHandler(updatedIngredient);
   };
@@ -73,18 +81,47 @@ const BurgerBuilder = () => {
   };
 
   const purchaseContinueHandler = () => {
-    alert("Thankyou!!");
+    setLoading(true);
+    const order = {
+      ingredients: ingredient,
+      price: totalPrice,
+      customer: {
+        name: "Deepak",
+        address: {
+          city: "test",
+          zip: 123,
+          isVIP: false,
+          email: "test@example.com",
+        },
+      },
+    };
+    AxiosOrders.post("/orders.json", order)
+      .then((response) => {
+        setLoading(false);
+        setPurchasing(false);
+      })
+      .catch((error) => {
+        setLoading(false);
+        setPurchasing(false);
+      });
   };
 
+  let orderSummary = (
+    <OrderSummary
+      ingredient={ingredient}
+      purchaseCancelled={purchaseCancelHandler}
+      purchaseContinued={purchaseContinueHandler}
+      price={totalPrice}
+    />
+  );
+
+  if (loading) {
+    orderSummary = <Spinner />;
+  }
   return (
     <div>
       <Modal show={purchasing} modalClosed={purchaseCancelHandler}>
-        <OrderSummary
-          ingredient={ingredient}
-          purchaseCancelled={purchaseCancelHandler}
-          purchaseContinued={purchaseContinueHandler}
-          price={totalPrice}
-        />
+        {orderSummary}
       </Modal>
       <Burger ingredient={ingredient} />
       <BuildControls
@@ -99,4 +136,4 @@ const BurgerBuilder = () => {
   );
 };
 
-export default BurgerBuilder;
+export default withErrorHandler(BurgerBuilder, AxiosOrders);
