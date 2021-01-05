@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useHistory } from "react-router-dom";
 import AxiosOrders from "../../AxiosOrders";
 import BuildControls from "../../component/burger/buildControls/BuildControls";
 import Burger from "../../component/burger/Burger";
@@ -7,7 +8,7 @@ import Modal from "../../component/ui/modal/Modal";
 import Spinner from "../../component/ui/spinner/Spinner";
 import withErrorHandler from "../../hoc/withErrorHandler/withErrorHandler";
 
-const BurgerBuilder = () => {
+const BurgerBuilder = (props) => {
   const INGREDIENT_PRICES = {
     salad: 0.5,
     cheese: 0.4,
@@ -24,6 +25,8 @@ const BurgerBuilder = () => {
   const [totalPrice, setTotalPrice] = useState(0);
 
   const [loading, setLoading] = useState(false);
+
+  const history = useHistory();
 
   useEffect(() => {
     AxiosOrders.get(
@@ -81,29 +84,20 @@ const BurgerBuilder = () => {
   };
 
   const purchaseContinueHandler = () => {
-    setLoading(true);
-    const order = {
-      ingredients: ingredient,
-      price: totalPrice,
-      customer: {
-        name: "Deepak",
-        address: {
-          city: "test",
-          zip: 123,
-          isVIP: false,
-          email: "test@example.com",
-        },
-      },
-    };
-    AxiosOrders.post("/orders.json", order)
-      .then((response) => {
-        setLoading(false);
-        setPurchasing(false);
-      })
-      .catch((error) => {
-        setLoading(false);
-        setPurchasing(false);
-      });
+    const queryParameter = [];
+    for (const key in ingredient) {
+      queryParameter.push(
+        `${encodeURIComponent(key)}=${encodeURIComponent(ingredient[key])}`
+      );
+    }
+
+    queryParameter.push(`price=${totalPrice}`);
+    const queryString = queryParameter.join("&");
+
+    history.push({
+      pathname: "/checkout",
+      search: `?${queryString}`,
+    });
   };
 
   let orderSummary = (
