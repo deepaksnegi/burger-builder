@@ -17,6 +17,13 @@ const ContactData = (props) => {
         placeholder: "your name.",
       },
       value: "",
+      validation: {
+        required: true,
+        maximumLength: 10,
+        minimumLength: 2,
+      },
+      isValid: false,
+      isTouched: false,
     },
     email: {
       elementType: "input",
@@ -27,6 +34,11 @@ const ContactData = (props) => {
         placeholder: "your email.",
       },
       value: "",
+      validation: {
+        required: true,
+      },
+      isValid: false,
+      isTouched: false,
     },
     city: {
       elementType: "input",
@@ -37,6 +49,11 @@ const ContactData = (props) => {
         placeholder: "your city.",
       },
       value: "",
+      validation: {
+        required: true,
+      },
+      isValid: false,
+      isTouched: false,
     },
     zipCode: {
       elementType: "input",
@@ -47,6 +64,12 @@ const ContactData = (props) => {
         placeholder: "your zip code.",
       },
       value: "",
+      validation: {
+        required: true,
+        maximumLength: 6,
+        minimumLength: 6,
+      },
+      isValid: false,
     },
     delivery: {
       elementType: "select",
@@ -57,41 +80,74 @@ const ContactData = (props) => {
         ],
       },
       value: "",
+      isValid: true,
     },
   });
 
   const [loading, setLoading] = useState(false);
+  const [isFormValid, setIsFormValid] = useState(false);
 
   const orderHandler = (event) => {
     event.preventDefault();
     setLoading(true);
-    const formData = [];
+    const formData = {};
     for (const key in orderForm) {
-      formData.push({ key: orderForm[key] });
+      formData[key] = orderForm[key].value;
     }
 
     const order = {
       ingredients: props.ingredients,
       price: props.price,
-      customer: formData,
+      orderData: formData,
     };
 
     AxiosOrders.post("/orders.json", order)
       .then((response) => {
         setLoading(false);
+        props.history.push("/");
       })
       .catch((error) => {
         setLoading(false);
       });
+  };
 
-    props.history.push("/");
+  const validateForm = (value, rules) => {
+    let isValid = true;
+
+    if (rules?.required) {
+      isValid = value.trim() !== "" && isValid;
+    }
+
+    if (rules?.maximumLength) {
+      isValid = value.length <= rules.maximumLength && isValid;
+    }
+
+    if (rules?.minimumLength) {
+      isValid = value.length >= rules.minimumLength && isValid;
+    }
+
+    return isValid;
   };
 
   const inputChangeHandler = (event, inputIdentifier) => {
     let updatedOrderForm = { ...orderForm }; //Doesn't deeply clone nested object, so they needed to be clone again
     let UpdatedOrderFormElement = { ...updatedOrderForm[inputIdentifier] };
     UpdatedOrderFormElement.value = event.target.value;
+    UpdatedOrderFormElement.isValid = validateForm(
+      event.target.value,
+      UpdatedOrderFormElement.validation
+    );
+    UpdatedOrderFormElement.isTouched = true;
     updatedOrderForm[inputIdentifier] = UpdatedOrderFormElement;
+
+    let isFormValid = true;
+    for (const key in updatedOrderForm) {
+      if (!updatedOrderForm[key].isValid) {
+        isFormValid = false;
+        break;
+      }
+    }
+    setIsFormValid(isFormValid);
     setOrderForm(updatedOrderForm);
   };
 
@@ -104,11 +160,16 @@ const ContactData = (props) => {
             elementType={orderForm[key].elementType}
             elementConfiguration={orderForm[key].elementConfiguration}
             value={orderForm[key].value}
+            isValid={orderForm[key].isValid}
+            shouldValidate={orderForm[key].validation}
+            isTouched={orderForm[key].isTouched}
             changed={(event) => inputChangeHandler(event, key)}
           />
         );
       })}
-      <Button buttonType="Success">ORDER</Button>
+      <Button disable={!isFormValid} buttonType={"Success"}>
+        ORDER
+      </Button>
     </form>
   );
 
