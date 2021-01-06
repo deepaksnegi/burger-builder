@@ -20,13 +20,7 @@ const Orders = () => {
   }, []);
 
   return orders.map((order) => (
-    <div>
-      <Order
-        key={order.id}
-        ingredients={order.ingredients}
-        price={order.price}
-      />
-    </div>
+    <Order key={order.id} ingredients={order.ingredients} price={order.price} />
   ));
 };
 
