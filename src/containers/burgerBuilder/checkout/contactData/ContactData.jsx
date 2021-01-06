@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import AxiosOrders from "../../../../AxiosOrders";
 import Button from "../../../../component/ui/button/Button";
@@ -187,4 +188,11 @@ const ContactData = (props) => {
   );
 };
 
-export default withRouter(ContactData);
+const mapStateToProps = (state) => {
+  return {
+    ingredients: state.ingredients,
+    totalPrice: state.totalPrice,
+  };
+};
+
+export default connect(mapStateToProps)(withRouter(ContactData));
