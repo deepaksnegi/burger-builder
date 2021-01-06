@@ -131,6 +131,8 @@ const ContactData = (props) => {
 
   const inputChangeHandler = (event, inputIdentifier) => {
     let updatedOrderForm = { ...orderForm }; //Doesn't deeply clone nested object, so they needed to be clone again
+    //could have been done: {...orderForm,orderForm[inputIdentifier]: updatedOrderForm[inputIdentifier] }
+    //use concat in arrays as push manipulate original array and concat return new array
     let UpdatedOrderFormElement = { ...updatedOrderForm[inputIdentifier] };
     UpdatedOrderFormElement.value = event.target.value;
     UpdatedOrderFormElement.isValid = validateForm(
