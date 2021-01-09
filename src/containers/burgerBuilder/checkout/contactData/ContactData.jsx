@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
-import { withRouter } from "react-router-dom";
 import AxiosOrders from "../../../../AxiosOrders";
 import Button from "../../../../component/ui/button/Button";
 import Input from "../../../../component/ui/input/Input";
 import Spinner from "../../../../component/ui/spinner/Spinner";
+import withErrorHandler from "../../../../hoc/withErrorHandler/withErrorHandler";
+import { createOrder } from "../../../../store/actions/Index";
 import "./ContactData.css";
 
 const ContactData = (props) => {
@@ -85,12 +86,10 @@ const ContactData = (props) => {
     },
   });
 
-  const [loading, setLoading] = useState(false);
   const [isFormValid, setIsFormValid] = useState(false);
 
   const orderHandler = (event) => {
     event.preventDefault();
-    setLoading(true);
     const formData = {};
     for (const key in orderForm) {
       formData[key] = orderForm[key].value;
@@ -102,14 +101,7 @@ const ContactData = (props) => {
       orderData: formData,
     };
 
-    AxiosOrders.post("/orders.json", order)
-      .then((response) => {
-        setLoading(false);
-        props.history.push("/");
-      })
-      .catch((error) => {
-        setLoading(false);
-      });
+    props.createOrder(order);
   };
 
   const validateForm = (value, rules) => {
@@ -176,7 +168,7 @@ const ContactData = (props) => {
     </form>
   );
 
-  if (loading) {
+  if (props.loading) {
     form = <Spinner />;
   }
 
@@ -192,7 +184,19 @@ const mapStateToProps = (state) => {
   return {
     ingredients: state.ingredients,
     totalPrice: state.totalPrice,
+    loading: state.loading,
   };
 };
 
-export default connect(mapStateToProps)(withRouter(ContactData));
+const mapDispatchToProps = (dispatch) => {
+  return {
+    createOrder: (order) => {
+      dispatch(createOrder(order));
+    },
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(withErrorHandler(ContactData, AxiosOrders));

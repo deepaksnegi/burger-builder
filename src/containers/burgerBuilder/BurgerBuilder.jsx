@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import { useHistory } from "react-router-dom";
 import AxiosOrders from "../../AxiosOrders";
@@ -6,24 +6,20 @@ import BuildControls from "../../component/burger/buildControls/BuildControls";
 import Burger from "../../component/burger/Burger";
 import OrderSummary from "../../component/burger/orderSummary/OrderSummary";
 import Modal from "../../component/ui/modal/Modal";
-import Spinner from "../../component/ui/spinner/Spinner";
 import withErrorHandler from "../../hoc/withErrorHandler/withErrorHandler";
-import * as actionTypes from "../../store/actions/Actions";
+import {
+  addIngredient,
+  removeIngredient,
+  initIngredientsAsync,
+} from "../../store/actions/Index";
 
 const BurgerBuilder = (props) => {
   const [purchasing, setPurchasing] = useState(false);
-
-  const [loading, setLoading] = useState(false);
-
   const history = useHistory();
 
-  // useEffect(() => {
-  //   AxiosOrders.get(
-  //     "https://burger-builder-9838e-default-rtdb.firebaseio.com/ingredients.json"
-  //   ).then((response) => {
-  //     setIngredient(response.data);
-  //   });
-  // }, []);
+  useEffect(() => {
+    props.setIngredientsAsync();
+  }, []);
 
   const disableInfo = {
     ...props.ingredients,
@@ -55,53 +51,56 @@ const BurgerBuilder = (props) => {
 
   let orderSummary = (
     <OrderSummary
-      ingredient={props.ingredients}
+      ingredients={props.ingredients}
       purchaseCancelled={purchaseCancelHandler}
       purchaseContinued={purchaseContinueHandler}
       price={props.totalPrice}
     />
   );
 
-  if (loading) {
-    orderSummary = <Spinner />;
+  let burger = null;
+  if (props.error) {
+    burger = <p>ingredient couldn't be loaded</p>;
+  } else {
+    burger = (
+      <>
+        <Burger ingredients={props.ingredients} />
+        <BuildControls
+          ingredientAdded={props.handleAddIngredient}
+          ingredientRemoved={props.handleRemoveIngredient}
+          disabled={disableInfo}
+          price={props.totalPrice}
+          purchasable={purchaseHandler()}
+          ordered={purchasingHandler}
+        />
+      </>
+    );
   }
   return (
     <div>
       <Modal show={purchasing} modalClosed={purchaseCancelHandler}>
         {orderSummary}
       </Modal>
-      <Burger ingredient={props.ingredients} />
-      <BuildControls
-        ingredientAdded={props.handleAddIngredient}
-        ingredientRemoved={props.handleRemoveIngredient}
-        disabled={disableInfo}
-        price={props.totalPrice}
-        purchasable={purchaseHandler()}
-        ordered={purchasingHandler}
-      />
+      {burger}
     </div>
   );
 };
 
 const mapStateToProps = (state) => {
   return {
-    ingredients: state.ingredients,
-    totalPrice: state.totalPrice,
+    ingredients: state.burger.ingredients,
+    totalPrice: state.burger.totalPrice,
+    error: state.burger.error,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
     handleAddIngredient: (ingredientName) =>
-      dispatch({
-        type: actionTypes.ADD_INGREDIENT,
-        payload: { ingredientName: ingredientName },
-      }),
+      dispatch(addIngredient(ingredientName)),
     handleRemoveIngredient: (ingredientName) =>
-      dispatch({
-        type: actionTypes.REMOVE_INGREDIENT,
-        payload: { ingredientName: ingredientName },
-      }),
+      dispatch(removeIngredient(ingredientName)),
+    setIngredientsAsync: () => dispatch(initIngredientsAsync()),
   };
 };
 

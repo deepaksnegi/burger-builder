@@ -22,7 +22,7 @@ const Checkout = (props) => {
   return (
     <div>
       <CheckoutSummary
-        ingredient={ingredients}
+        ingredients={ingredients}
         checkoutCancelled={checkoutCancelled}
         checkoutContinued={checkoutContinued}
       />
@@ -36,7 +36,7 @@ const Checkout = (props) => {
 
 const mapStateToProps = (state) => {
   return {
-    ingredients: state.ingredients,
+    ingredients: state.burger.ingredients,
   };
 };
 
