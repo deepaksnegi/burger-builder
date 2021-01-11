@@ -34,3 +34,43 @@ export const purchaseInit = () => {
     type: actionTypes.PURCHASE_INIT,
   };
 };
+
+const setOrdersStart = () => {
+  return {
+    type: actionTypes.SET_ORDERS_START,
+  };
+};
+
+const setOrders = (orders) => {
+  return {
+    type: actionTypes.SET_ORDERS,
+    payload: {
+      orders: orders,
+    },
+  };
+};
+
+const setOrdersFailed = (error) => {
+  return {
+    type: actionTypes.SET_ORDERS,
+    payload: {
+      error: error,
+    },
+  };
+};
+
+export const setOrdersAsync = () => {
+  return (dispatch) => {
+    dispatch(setOrdersStart());
+    AxiosOrders.get("/orders.json")
+      .then((response) => {
+        const orders = [];
+
+        for (const key in response.data) {
+          orders.push({ ...response.data[key], id: key });
+        }
+        dispatch(setOrders(orders));
+      })
+      .catch((error) => dispatch(setOrdersFailed(error)));
+  };
+};
