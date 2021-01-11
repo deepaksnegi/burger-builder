@@ -4,4 +4,4 @@ export {
   initIngredientsAsync,
 } from "./BurgerBuilderAction";
 
-export { createOrder } from "./OrderAction";
+export { createOrderAsync, purchaseInit } from "./OrderAction";

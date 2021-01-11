@@ -21,10 +21,16 @@ export const createOrderAsync = (order) => {
     dispatch(purchaseBurgerStart());
     AxiosOrders.post("/orders.json", order)
       .then((response) => {
-        dispatch(createOrder({ id: response.data, order: order }));
+        dispatch(createOrder({ id: response.data.name, order: order }));
       })
       .catch((error) => {
         dispatch(createOrderFailed());
       });
+  };
+};
+
+export const purchaseInit = () => {
+  return {
+    type: actionTypes.PURCHASE_INIT,
   };
 };

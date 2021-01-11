@@ -11,6 +11,7 @@ import {
   addIngredient,
   removeIngredient,
   initIngredientsAsync,
+  purchaseInit,
 } from "../../store/actions/Index";
 
 const BurgerBuilder = (props) => {
@@ -46,6 +47,7 @@ const BurgerBuilder = (props) => {
   };
 
   const purchaseContinueHandler = () => {
+    props.initPurchase();
     history.push("/checkout");
   };
 
@@ -101,6 +103,7 @@ const mapDispatchToProps = (dispatch) => {
     handleRemoveIngredient: (ingredientName) =>
       dispatch(removeIngredient(ingredientName)),
     setIngredientsAsync: () => dispatch(initIngredientsAsync()),
+    initPurchase: () => dispatch(purchaseInit()),
   };
 };
 

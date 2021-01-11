@@ -5,7 +5,7 @@ import Button from "../../../../component/ui/button/Button";
 import Input from "../../../../component/ui/input/Input";
 import Spinner from "../../../../component/ui/spinner/Spinner";
 import withErrorHandler from "../../../../hoc/withErrorHandler/withErrorHandler";
-import { createOrder } from "../../../../store/actions/Index";
+import { createOrderAsync } from "../../../../store/actions/Index";
 import "./ContactData.css";
 
 const ContactData = (props) => {
@@ -81,7 +81,7 @@ const ContactData = (props) => {
           { value: "cheapest", displayValue: "Cheapest" },
         ],
       },
-      value: "",
+      value: "fastest",
       isValid: true,
     },
   });
@@ -182,16 +182,16 @@ const ContactData = (props) => {
 
 const mapStateToProps = (state) => {
   return {
-    ingredients: state.ingredients,
-    totalPrice: state.totalPrice,
-    loading: state.loading,
+    ingredients: state.burger.ingredients,
+    price: state.burger.totalPrice,
+    loading: state.order.loading,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
     createOrder: (order) => {
-      dispatch(createOrder(order));
+      dispatch(createOrderAsync(order));
     },
   };
 };
