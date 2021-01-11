@@ -2,10 +2,10 @@ import React from "react";
 import Button from "../../ui/button/Button";
 
 const OrderSummary = (props) => {
-  const ingredientSummary = Object.keys(props.ingredient).map((k) => {
+  const ingredientSummary = Object.keys(props.ingredients).map((k) => {
     return (
       <li key={k}>
-        <strong>{k}: </strong> {props.ingredient[k]}
+        <strong>{k}: </strong> {props.ingredients[k]}
       </li>
     );
   });

@@ -15,6 +15,7 @@ const withErrorHandler = (WrapComponent, axios) => {
         (response) => response,
         (error) => {
           setError(error);
+          return error;
         }
       );
       return () => {

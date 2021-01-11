@@ -1,24 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Route } from "react-router-dom";
+import { connect } from "react-redux";
+import { Redirect, Route } from "react-router-dom";
 import CheckoutSummary from "../../../component/order/checkoutSummary/CheckoutSummary";
 import ContactData from "./contactData/ContactData";
 
 const Checkout = (props) => {
   const [ingredients, setIngredients] = useState({});
-  const [price, setPrice] = useState(0);
 
   useEffect(() => {
-    const queryParameter = new URLSearchParams(props.location.search);
-
-    const ingredient = {};
-    for (const param of queryParameter.entries()) {
-      if (param[0] === "price") {
-        setPrice(+param[1]);
-      } else {
-        ingredient[param[0]] = +param[1];
-      }
-    }
-    setIngredients(ingredient);
+    setIngredients(props.ingredients);
   }, []);
 
   const checkoutContinued = () => {
@@ -29,19 +19,33 @@ const Checkout = (props) => {
     props.history.goBack();
   };
 
-  return (
-    <div>
-      <CheckoutSummary
-        ingredient={ingredients}
-        checkoutCancelled={checkoutCancelled}
-        checkoutContinued={checkoutContinued}
-      />
-      <Route
-        path={`${props.match.path}/contact-data`}
-        render={() => <ContactData ingredients={ingredients} price={price} />}
-      />
-    </div>
-  );
+  let summary = <Redirect to="/" />;
+
+  if (props.ingredients) {
+    const purchasedRedirect = props.purchased ? <Redirect to="/" /> : null;
+    summary = (
+      <>
+        {purchasedRedirect}
+        <CheckoutSummary
+          ingredients={ingredients}
+          checkoutCancelled={checkoutCancelled}
+          checkoutContinued={checkoutContinued}
+        />
+        <Route
+          path={`${props.match.path}/contact-data`}
+          component={ContactData}
+        />
+      </>
+    );
+  }
+  return summary;
 };
 
-export default Checkout;
+const mapStateToProps = (state) => {
+  return {
+    ingredients: state.burger.ingredients,
+    purchased: state.order.purchased,
+  };
+};
+
+export default connect(mapStateToProps)(Checkout);
