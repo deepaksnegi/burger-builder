@@ -1,14 +1,14 @@
 export {
   addIngredient,
   removeIngredient,
-  initIngredientsAsync,
+  initIngredients,
 } from "./BurgerBuilderAction";
 
-export { createOrderAsync, purchaseInit, setOrdersAsync } from "./OrderAction";
+export { purchaseBurger, purchaseInit, fetchOrders } from "./OrderAction";
 
 export {
-  authenticateAsync,
-  authenticationStart,
-  authenticationFailed,
-  authenticationSuccess,
+  auth,
+  logout,
+  setAuthRedirectPath,
+  authCheckState,
 } from "./AuthenticationAction";

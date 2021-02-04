@@ -1,41 +1,41 @@
 import AxiosOrders from "../../AxiosOrders";
 import * as actionTypes from "./ActionTypes";
 
-export const addIngredient = (ingredientName) => {
+export const addIngredient = (name) => {
   return {
     type: actionTypes.ADD_INGREDIENT,
-    payload: { ingredientName: ingredientName },
+    ingredientName: name,
   };
 };
 
-export const removeIngredient = (ingredientName) => {
+export const removeIngredient = (name) => {
   return {
     type: actionTypes.REMOVE_INGREDIENT,
-    payload: { ingredientName: ingredientName },
+    ingredientName: name,
   };
 };
 
-const setIngredients = (ingredients) => {
+export const setIngredients = (ingredients) => {
   return {
-    type: actionTypes.SET_INGREDIENT,
-    payload: { ingredients: ingredients },
+    type: actionTypes.SET_INGREDIENTS,
+    ingredients: ingredients,
   };
 };
 
-export const failedFetchingIngredients = () => {
+export const fetchIngredientsFailed = () => {
   return {
-    type: actionTypes.FETCH_INGREDIENT_FAILED,
+    type: actionTypes.FETCH_INGREDIENTS_FAILED,
   };
 };
 
-export const initIngredientsAsync = () => {
+export const initIngredients = () => {
   return (dispatch) => {
     AxiosOrders.get("ingredients.json")
       .then((response) => {
         dispatch(setIngredients(response.data));
       })
       .catch((error) => {
-        dispatch(failedFetchingIngredients());
+        dispatch(fetchIngredientsFailed());
       });
   };
 };

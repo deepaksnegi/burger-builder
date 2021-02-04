@@ -4,7 +4,7 @@ import AxiosOrders from "../../../../AxiosOrders";
 import Button from "../../../../component/ui/button/Button";
 import Input from "../../../../component/ui/input/Input";
 import Spinner from "../../../../component/ui/spinner/Spinner";
-import withErrorHandler from "../../../../hoc/withErrorHandler/withErrorHandler";
+import withErrorHandler from "../../../../hoc/withErrorHandler/WithErrorHandler";
 import { createOrderAsync } from "../../../../store/actions/Index";
 import "./ContactData.css";
 
@@ -101,7 +101,7 @@ const ContactData = (props) => {
       orderData: formData,
     };
 
-    props.createOrder(order);
+    props.createOrder(order, props.token);
   };
 
   const validateForm = (value, rules) => {
@@ -185,13 +185,14 @@ const mapStateToProps = (state) => {
     ingredients: state.burger.ingredients,
     price: state.burger.totalPrice,
     loading: state.order.loading,
+    token: state.authentication.token,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    createOrder: (order) => {
-      dispatch(createOrderAsync(order));
+    createOrder: (order, token) => {
+      dispatch(createOrderAsync(order, token));
     },
   };
 };

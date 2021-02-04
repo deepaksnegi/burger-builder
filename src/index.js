@@ -1,22 +1,25 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { BrowserRouter as Router } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
-import { applyMiddleware, combineReducers, compose, createStore } from "redux";
+import { createStore, applyMiddleware, compose, combineReducers } from "redux";
+import thunk from "redux-thunk";
 
 import "./index.css";
 import App from "./App";
-import BurgerBuilderReducer from "./store/reducers/BurgerBuilderReducer";
-import OrderReducer from "./store/reducers/OrderReducer";
-import AuthenticationReducer from "./store/reducers/AuthenticationReducer";
-import thunk from "redux-thunk";
+import burgerBuilderReducer from "./store/reducers/BurgerBuilderReducer";
+import orderReducer from "./store/reducers/OrderReducer";
+import authReducer from "./store/reducers/AuthenticationReducer";
 
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+const composeEnhancers =
+  process.env.NODE_ENV === "development"
+    ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+    : null || compose;
 
 const rootReducer = combineReducers({
-  burger: BurgerBuilderReducer,
-  order: OrderReducer,
-  authentication: AuthenticationReducer,
+  burgerBuilder: burgerBuilderReducer,
+  order: orderReducer,
+  auth: authReducer,
 });
 
 const store = createStore(
@@ -26,16 +29,10 @@ const store = createStore(
 
 const app = (
   <Provider store={store}>
-    <Router>
-      <React.StrictMode>
-        <App />
-      </React.StrictMode>
-    </Router>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   </Provider>
 );
 
 ReactDOM.render(app, document.getElementById("root"));
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals

@@ -1,5 +1,5 @@
 import * as actionTypes from "../actions/ActionTypes";
-import { UpdateObject } from "../utility/UpdateObject";
+import { updateObject } from "../../shared/Utility";
 
 const initialState = {
   orders: [],
@@ -7,66 +7,61 @@ const initialState = {
   purchased: false,
 };
 
-const purchaseBurgerStart = (state, action) => {
-  return UpdateObject(state, {
-    loading: true,
-  });
+const purchaseInit = (state, action) => {
+  return updateObject(state, { purchased: false });
 };
 
-const createOrder = (state, action) => {
-  return UpdateObject(state, {
-    orders: state.orders.concat(action.payload.order),
+const purchaseBurgerStart = (state, action) => {
+  return updateObject(state, { loading: true });
+};
+
+const purchaseBurgerSuccess = (state, action) => {
+  const newOrder = updateObject(action.orderData, { id: action.orderId });
+  return updateObject(state, {
     loading: false,
     purchased: true,
+    orders: state.orders.concat(newOrder),
   });
 };
-const createOrderFailed = (state, action) => {
-  return UpdateObject(state, {
+
+const purchaseBurgerFail = (state, action) => {
+  return updateObject(state, { loading: false });
+};
+
+const fetchOrdersStart = (state, action) => {
+  return updateObject(state, { loading: true });
+};
+
+const fetchOrdersSuccess = (state, action) => {
+  return updateObject(state, {
+    orders: action.orders,
     loading: false,
   });
 };
 
-const purchaseInit = (state, action) => {
-  return UpdateObject(state, {
-    purchased: false,
-  });
-};
-const setOrdersStart = (state, action) => {
-  return UpdateObject(state, {
-    loading: true,
-  });
-};
-const setOrdersFailed = (state, action) => {
-  return UpdateObject(state, {
-    loading: false,
-  });
-};
-const setOrders = (state, action) => {
-  return UpdateObject(state, {
-    orders: action.payload.orders,
-    loading: false,
-  });
+const fetchOrdersFail = (state, action) => {
+  return updateObject(state, { loading: false });
 };
 
-const OrderReducer = (state = initialState, action) => {
+const reducer = (state = initialState, action) => {
   switch (action.type) {
-    case actionTypes.PURCHASE_BURGER_START:
-      return purchaseBurgerStart(state, action);
-    case actionTypes.CREATE_ORDER:
-      return createOrder(state, action);
-    case actionTypes.CREATE_ORDER_FAILED:
-      return createOrderFailed(state, action);
     case actionTypes.PURCHASE_INIT:
       return purchaseInit(state, action);
-    case actionTypes.SET_ORDERS_START:
-      return setOrdersStart(state, action);
-    case actionTypes.SET_ORDERS_FAILED:
-      return setOrdersFailed(state, action);
-    case actionTypes.SET_ORDERS:
-      return setOrders(state, action);
+    case actionTypes.PURCHASE_BURGER_START:
+      return purchaseBurgerStart(state, action);
+    case actionTypes.PURCHASE_BURGER_SUCCESS:
+      return purchaseBurgerSuccess(state, action);
+    case actionTypes.PURCHASE_BURGER_FAIL:
+      return purchaseBurgerFail(state, action);
+    case actionTypes.FETCH_ORDERS_START:
+      return fetchOrdersStart(state, action);
+    case actionTypes.FETCH_ORDERS_SUCCESS:
+      return fetchOrdersSuccess(state, action);
+    case actionTypes.FETCH_ORDERS_FAIL:
+      return fetchOrdersFail(state, action);
     default:
       return state;
   }
 };
 
-export default OrderReducer;
+export default reducer;
